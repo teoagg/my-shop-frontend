@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Strapi Shop icon</title>
+  <rect width="512" height="512" rx="96" fill="#111111"/>
+  <path fill="#ffffff" d="M152 188h42c8-38 32-62 63-62s55 24 63 62h40c18 0 32 14 32 32v152c0 18-14 32-32 32H152c-18 0-32-14-32-32V220c0-18 14-32 32-32Zm82 0h46c-6-18-16-26-23-26s-17 8-23 26Zm-28 52a18 18 0 0 0 18-18h-36a18 18 0 0 0 18 18Zm100 0a18 18 0 0 0 18-18h-36a18 18 0 0 0 18 18Z"/>
+</svg>

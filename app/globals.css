@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafaf7;
+  --foreground: #20221c;
+  --muted: #5f675f;
+  --line: #dedfd5;
+  --surface: #ffffff;
+  --surface-alt: #eef4f1;
+  --accent: #176b5b;
+  --accent-dark: #0f473d;
+  --sky: #4b9fbd;
+  --danger: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(23, 107, 91, 0.35);
+  outline-offset: 3px;
+}
+
+.shell {
+  width: min(1160px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.btn-primary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  padding: 10px 18px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(23, 107, 91, 0.18);
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  padding: 10px 18px;
+  font-weight: 700;
+}
+
+.btn-secondary:hover {
+  border-color: #b8bbad;
+  transform: translateY(-1px);
+}
+
+.field {
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  padding: 10px 12px;
+}
+
+.field:focus {
+  border-color: var(--accent);
+}
+
+.section-title {
+  font-size: clamp(2.35rem, 4.8vw, 4.75rem);
+  line-height: 1;
+  letter-spacing: 0;
+  font-weight: 850;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+body.shop-site {
+  --background: #f7f7f2;
+  --muted: #64675d;
+  background:
+    linear-gradient(180deg, rgba(23, 107, 91, 0.08), transparent 280px),
+    var(--background);
+}
+
+.shop-site .shell {
+  width: min(1120px, calc(100% - 32px));
+}
+
+.shop-site .section-title {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.96;
+}
+
+section[id] {
+  scroll-margin-top: 88px;
+}
+
+@media (max-width: 720px) {
+  .section-title {
+    font-size: 2.45rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "my-shop-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "dev:medical": "node scripts/dev-medical.mjs",
+    "dev:backend": "powershell -NoProfile -File scripts/dev-backend.ps1",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "evaluate": "node evaluation/run-evaluation.mjs",
+    "serverless:demo": "node serverless/local-dev.mjs"
+  },
+  "dependencies": {
+    "20": "^3.1.9",
+    "next": "16.2.2",
+    "postcss": "^8.5.8",
+    "qs": "^6.15.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.2",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5"
+  }
+}

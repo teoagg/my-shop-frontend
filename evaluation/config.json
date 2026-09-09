@@ -1,0 +1,38 @@
+{
+  "frontendBaseUrl": "http://127.0.0.1:3000",
+  "strapiBaseUrl": "http://127.0.0.1:1337",
+  "iterations": 5,
+  "frontendPaths": [
+    "/",
+    "/products",
+    "/products/macbook-pro",
+    "/cart",
+    "/evaluation"
+  ],
+  "apiPaths": [
+    "/api/products?pagination[pageSize]=10&populate=*",
+    "/api/recommendations?documentId=ple8la3nz98fu6e8z75sgjfu&limit=4",
+    "/api/interactions/summary"
+  ],
+  "securityTargets": [
+    {
+      "name": "Next.js frontend",
+      "url": "http://127.0.0.1:3000"
+    },
+    {
+      "name": "Strapi API",
+      "url": "http://127.0.0.1:1337/api/products"
+    }
+  ],
+  "traditionalCmsBaseline": {
+    "name": "Traditional CMS baseline",
+    "notes": "Analytical baseline for a monolithic CMS where frontend rendering, plugins, templates and administration are hosted in the same application runtime.",
+    "architecture": "Monolithic CMS",
+    "expectedTraits": [
+      "Tighter coupling between content model and rendered templates",
+      "Plugin-dependent PWA and SEO features",
+      "Larger single application attack surface",
+      "Scaling usually applies to the whole CMS runtime rather than individual API concerns"
+    ]
+  }
+}

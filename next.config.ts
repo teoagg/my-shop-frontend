@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Shared hosting limits the number of concurrent build processes.
+  experimental: { cpus: 1 },
   distDir: process.env.SITE_MODE === 'medical' ? '.next-medical' : '.next',
   images: {
     dangerouslyAllowLocalIP: true,

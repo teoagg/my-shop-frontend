@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 
 const root = process.cwd()
-const configPath = resolve(root, 'evaluation/config.json')
+const configPath = resolve(root, process.env.EVALUATION_CONFIG || 'evaluation/config.json')
 const reportsDir = resolve(root, 'evaluation/reports')
 const latestJsonPath = resolve(reportsDir, 'latest.json')
 const summaryPath = resolve(reportsDir, 'summary.md')
@@ -35,13 +35,13 @@ function summarize(samples) {
     }, {}),
     ttfb: {
       avgMs: round(headerTimes.reduce((sum, value) => sum + value, 0) / (headerTimes.length || 1)),
-      minMs: round(Math.min(...headerTimes, 0)),
+      minMs: round(headerTimes.length ? Math.min(...headerTimes) : 0),
       maxMs: round(Math.max(...headerTimes, 0)),
       p95Ms: round(percentile(headerTimes, 95)),
     },
     total: {
       avgMs: round(totalTimes.reduce((sum, value) => sum + value, 0) / (totalTimes.length || 1)),
-      minMs: round(Math.min(...totalTimes, 0)),
+      minMs: round(totalTimes.length ? Math.min(...totalTimes) : 0),
       maxMs: round(Math.max(...totalTimes, 0)),
       p95Ms: round(percentile(totalTimes, 95)),
     },
@@ -54,6 +54,7 @@ async function timedFetch(url) {
   try {
     const response = await fetch(url, {
       redirect: 'manual',
+      signal: AbortSignal.timeout(30000),
       headers: {
         'User-Agent': 'strapi-shop-evaluation/1.0',
       },
@@ -165,6 +166,7 @@ async function scanSecurity(targets) {
     try {
       const response = await fetch(target.url, {
         redirect: 'manual',
+      signal: AbortSignal.timeout(30000),
         headers: {
           'User-Agent': 'strapi-shop-security-scan/1.0',
         },
@@ -197,6 +199,7 @@ async function scanSecurity(targets) {
 async function checkAuthorization(strapiBaseUrl) {
   const url = new URL('/api/orders/my', strapiBaseUrl).toString()
   const response = await fetch(url, {
+    signal: AbortSignal.timeout(30000),
     headers: {
       'User-Agent': 'strapi-shop-auth-check/1.0',
     },
@@ -229,7 +232,7 @@ function compareAgainstTraditionalCms(report) {
       criterion: 'TTFB / frontend response',
       current: `${round(frontendAvg)} ms average measured TTFB`,
       traditional: 'Often template/plugin/runtime dependent',
-      observation: 'Measured on local development infrastructure; production hosting would require a separate run.',
+      observation: 'Measured from the report execution host against the configured URLs; this is HTTP timing, not browser rendering or Core Web Vitals.',
     },
     {
       criterion: 'API latency',
@@ -247,7 +250,7 @@ function compareAgainstTraditionalCms(report) {
       criterion: 'PWA / UX experimentation',
       current: 'Next.js PWA, recommender tracking, A/B metrics',
       traditional: 'Usually plugin/theme dependent',
-      observation: 'Experimentation is implemented as application code and tracked through Strapi interactions.',
+      observation: 'Experimentation is implemented as application code; analytics storage depends on the configured deployment.',
     },
   ]
 }
@@ -336,6 +339,7 @@ async function main() {
     generatedAt: new Date().toISOString(),
     environment: {
       node: process.version,
+      measurementContext: config.measurementContext || 'Execution host against configured URLs',
       frontendBaseUrl: config.frontendBaseUrl,
       strapiBaseUrl: config.strapiBaseUrl,
       iterations: config.iterations,

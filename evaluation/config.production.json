@@ -1,0 +1,39 @@
+{
+  "frontendBaseUrl": "https://shop.tagg.gr",
+  "strapiBaseUrl": "https://api.tagg.gr",
+  "iterations": 5,
+  "frontendPaths": [
+    "/",
+    "/products",
+    "/products/macbook-pro",
+    "/cart",
+    "/evaluation"
+  ],
+  "apiPaths": [
+    "/api/products?pagination[pageSize]=10&populate=*",
+    "https://cl8xfql3yl.execute-api.eu-north-1.amazonaws.com/recommendations?limit=4",
+    "https://umbhnau6y8.execute-api.eu-north-1.amazonaws.com/summary"
+  ],
+  "securityTargets": [
+    {
+      "name": "Next.js frontend",
+      "url": "https://shop.tagg.gr/"
+    },
+    {
+      "name": "Strapi API",
+      "url": "https://api.tagg.gr/api/products"
+    }
+  ],
+  "traditionalCmsBaseline": {
+    "name": "Traditional CMS baseline",
+    "notes": "Analytical baseline for a monolithic CMS where frontend rendering, plugins, templates and administration are hosted in the same application runtime.",
+    "architecture": "Monolithic CMS",
+    "expectedTraits": [
+      "Tighter coupling between content model and rendered templates",
+      "Plugin-dependent PWA and SEO features",
+      "Larger single application attack surface",
+      "Scaling usually applies to the whole CMS runtime rather than individual API concerns"
+    ]
+  },
+  "measurementContext": "Plesk hosting server requesting public HTTPS endpoints; five sequential samples per URL, without browser rendering or an explicit warm-up."
+}

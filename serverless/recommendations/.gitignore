@@ -1,0 +1,6 @@
+.env
+node_modules/
+*.tgz
+build/
+.aws-sam/
+samconfig.toml

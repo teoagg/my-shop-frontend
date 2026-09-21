@@ -1,10 +1,6 @@
-import { json, parseBody, strapiBaseUrl } from '../shared/response.mjs'
+import { json, parseBody, strapiBaseUrl, fetchUpstream, serviceHandler } from './runtime.mjs'
 
-export async function handler(event) {
-  if (event.requestContext?.http?.method === 'OPTIONS' || event.httpMethod === 'OPTIONS') {
-    return json(204, {})
-  }
-
+export const handler = serviceHandler('checkout', 'POST', async (event) => {
   const authorization =
     event.headers?.authorization || event.headers?.Authorization || ''
 
@@ -12,12 +8,12 @@ export async function handler(event) {
     return json(401, {
       error: 'Checkout service requires a JWT token.',
       service: 'checkout',
-      architecture: 'serverless-microservice',
+      architecture: 'strapi-proxy',
     })
   }
 
   const started = performance.now()
-  const response = await fetch(new URL('/api/orders', strapiBaseUrl()), {
+  const response = await fetchUpstream(new URL('/api/orders', strapiBaseUrl()), {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -31,7 +27,7 @@ export async function handler(event) {
     return json(response.status, {
       error: data?.error?.message || 'Checkout service failed.',
       service: 'checkout',
-      architecture: 'serverless-microservice',
+      architecture: 'strapi-proxy',
     })
   }
 
@@ -40,8 +36,8 @@ export async function handler(event) {
     meta: {
       ...(data?.meta || {}),
       service: 'checkout',
-      architecture: 'serverless-microservice',
+      architecture: 'strapi-proxy',
       runtimeMs: Math.round(performance.now() - started),
     },
   })
-}
+})

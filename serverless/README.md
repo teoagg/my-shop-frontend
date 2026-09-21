@@ -1,53 +1,31 @@
-# Serverless / MACH Demo
+# Composable architecture pilot
 
-This folder demonstrates how the platform can move toward a composable MACH architecture without replacing Strapi.
+`recommendations/` now owns the ranking algorithm and reads raw products/interactions from Strapi. Its folder runs independently and includes an AWS SAM template, tests, packaging and an evaluation script. See its README for the protected backend endpoint prerequisite and deployment instructions. The recommendation Lambda is deployed in eu-north-1; see recommendations/DEPLOYMENT.md for verification and operational details.
 
-## What is extracted
+`analytics/` and `checkout/` are independently runnable **Strapi proxies**, not extracted business services. Each has its own runtime, package.json, .env.example and HTTP entry point. They still forward to `/api/interactions/track` and `/api/orders`. Stripe payment endpoints remain in Strapi.
 
-- `recommendations`: independent recommendation microservice
-- `analytics`: independent interaction tracking microservice
-- `checkout`: independent checkout orchestration microservice
+## Independent HTTP processes
 
-Each handler follows a Lambda-style shape:
+From each folder, copy .env.example to .env, set the existing Strapi URL and the frontend origin, and run `npm start`. Recommendations also requires a dedicated Strapi read token. No npm dependencies or frontend checkout are required once a service folder is copied elsewhere.
 
-```js
-export async function handler(event) {
-  return {
-    statusCode: 200,
-    headers: {},
-    body: JSON.stringify({})
-  }
-}
-```
+| Folder | Default port | Endpoint |
+| --- | --- | --- |
+| recommendations | 8787 | GET /recommendations |
+| analytics | 8788 | POST /track |
+| checkout | 8789 | POST /checkout (existing user's Bearer JWT required) |
 
-The same handlers can be adapted to:
+Each HTTP process exposes GET /health. Configure PORT, HOST, ALLOWED_ORIGIN and UPSTREAM_TIMEOUT_MS as needed. The small runtime module is intentionally bundled in each folder for copy-alone deployment.
 
-- AWS Lambda + API Gateway
-- Azure Functions HTTP triggers
-- Vercel/Netlify functions
-- Dockerized microservices
-
-## Local Demo
-
-Run Strapi first on port `1337`, then start the local serverless adapter:
-
-```bash
-npm run serverless:demo
-```
-
-Optional frontend env vars:
+Set these frontend values before rebuilding:
 
 ```env
 NEXT_PUBLIC_RECOMMENDATIONS_URL=http://127.0.0.1:8787/recommendations
-NEXT_PUBLIC_ANALYTICS_URL=http://127.0.0.1:8787/track
-NEXT_PUBLIC_CHECKOUT_URL=http://127.0.0.1:8787/checkout
+NEXT_PUBLIC_ANALYTICS_URL=http://127.0.0.1:8788/track
+NEXT_PUBLIC_CHECKOUT_URL=http://127.0.0.1:8789/checkout
 ```
 
-With these variables, the Next.js app uses the serverless microservices. Without them, it falls back to the existing Strapi endpoints.
+Use HTTPS service URLs when deploying the public frontend. Leaving a variable unset retains that feature's original Strapi endpoint. For the Lambda pilot, set only the recommendations URL.
 
-## MACH Mapping
+The legacy `npm run serverless:demo` command hosts all three routes on one port (8787 by default). Supply STRAPI_URL and STRAPI_API_TOKEN to that process. It does not automatically load each service's .env.
 
-- Microservices: recommendation, analytics, checkout are independently deployable.
-- API-first: services communicate through JSON over HTTP.
-- Cloud-native: handlers are portable to Lambda/Azure Functions.
-- Headless: Strapi remains the CMS/content API, while Next.js remains the frontend.
+This is a partial composable transition. Separate Node processes on Plesk are not serverless infrastructure. A function-shaped handler alone is not evidence of deployment to Lambda/Azure, and the whole shop is not claimed to be fully MACH.

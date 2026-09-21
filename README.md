@@ -51,7 +51,10 @@ The seed is idempotent and adds demo technology products with existing uploaded 
 
 ## Serverless / MACH Demo
 
-The project includes an indicative composable architecture mode under `serverless/`.
+The project includes a partial composable architecture pilot under `serverless/`.
+Recommendations compute their own rankings; analytics and checkout remain Strapi proxies.
+See [deployment prerequisites and standalone commands](serverless/README.md).
+The recommendations pilot requires a protected Strapi interaction read endpoint and a dedicated API token. The recommendation Lambda is deployed in eu-north-1; see serverless/recommendations/DEPLOYMENT.md for verification and operational details.
 
 Run the local microservice adapter:
 

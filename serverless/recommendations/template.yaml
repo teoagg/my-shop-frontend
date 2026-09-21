@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Independent shop recommendation pilot
+Parameters:
+  StrapiUrl:
+    Type: String
+    AllowedPattern: 'https://[^/]+/?'
+  StrapiApiToken:
+    Type: String
+    NoEcho: true
+    MinLength: 1
+  AllowedOrigin:
+    Type: String
+    Default: https://shop.tagg.gr
+Resources:
+  RecommendationsApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: '$default'
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 10
+        ThrottlingRateLimit: 5
+  RecommendationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/function/
+      Handler: handler.handler
+      Runtime: nodejs22.x
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          STRAPI_URL: !Ref StrapiUrl
+          STRAPI_API_TOKEN: !Ref StrapiApiToken
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          UPSTREAM_TIMEOUT_MS: '5000'
+      Events:
+        Recommendations:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref RecommendationsApi
+            Path: /recommendations
+            Method: GET
+        Preflight:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref RecommendationsApi
+            Path: /recommendations
+            Method: OPTIONS
+Outputs:
+  RecommendationsUrl:
+    Value: !Sub 'https://${RecommendationsApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/recommendations'

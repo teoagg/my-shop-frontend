@@ -1,13 +1,9 @@
-import { json, parseBody, strapiBaseUrl } from '../shared/response.mjs'
+import { json, parseBody, strapiBaseUrl, fetchUpstream, serviceHandler } from './runtime.mjs'
 
-export async function handler(event) {
-  if (event.requestContext?.http?.method === 'OPTIONS' || event.httpMethod === 'OPTIONS') {
-    return json(204, {})
-  }
-
+export const handler = serviceHandler('analytics', 'POST', async (event) => {
   const body = parseBody(event)
   const started = performance.now()
-  const response = await fetch(new URL('/api/interactions/track', strapiBaseUrl()), {
+  const response = await fetchUpstream(new URL('/api/interactions/track', strapiBaseUrl()), {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -20,7 +16,7 @@ export async function handler(event) {
     return json(response.status, {
       error: data?.error?.message || 'Analytics service failed.',
       service: 'analytics',
-      architecture: 'serverless-microservice',
+      architecture: 'strapi-proxy',
     })
   }
 
@@ -29,8 +25,8 @@ export async function handler(event) {
     meta: {
       ...(data?.meta || {}),
       service: 'analytics',
-      architecture: 'serverless-microservice',
+      architecture: 'strapi-proxy',
       runtimeMs: Math.round(performance.now() - started),
     },
   })
-}
+})

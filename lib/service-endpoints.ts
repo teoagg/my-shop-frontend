@@ -46,3 +46,7 @@ export function getServiceMode() {
     checkout: process.env.NEXT_PUBLIC_CHECKOUT_URL ? 'serverless' : 'strapi',
   }
 }
+
+export function getAnalyticsSummaryUrl() {
+  return serviceUrl(process.env.NEXT_PUBLIC_ANALYTICS_SUMMARY_URL, `${STRAPI_URL}/api/interactions/summary`)
+}

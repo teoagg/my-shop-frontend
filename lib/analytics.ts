@@ -25,6 +25,7 @@ export function trackInteraction(payload: TrackPayload) {
   const body = JSON.stringify({
     data: {
       ...payload,
+      eventId: crypto.randomUUID(),
       sessionId: getSessionId(),
       variant: getAbVariant(),
     },
@@ -32,14 +33,16 @@ export function trackInteraction(payload: TrackPayload) {
 
   const url = getAnalyticsUrl()
 
-  if (navigator.sendBeacon) {
+  // Cross-origin JSON beacons include credentials, which require credentialed CORS.
+  // Analytics endpoints use anonymous requests, so use keepalive fetch across origins.
+  if (navigator.sendBeacon && new URL(url, window.location.href).origin === window.location.origin) {
     const blob = new Blob([body], { type: 'application/json' })
-    navigator.sendBeacon(url, blob)
-    return
+    if (navigator.sendBeacon(url, blob)) return
   }
 
   fetch(url, {
     method: 'POST',
+    credentials: 'omit',
     headers: {
       'Content-Type': 'application/json',
     },

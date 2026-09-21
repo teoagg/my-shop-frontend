@@ -2,11 +2,11 @@
 
 `recommendations/` now owns the ranking algorithm and reads raw products/interactions from Strapi. Its folder runs independently and includes an AWS SAM template, tests, packaging and an evaluation script. See its README for the protected backend endpoint prerequisite and deployment instructions. The recommendation Lambda is deployed in eu-north-1; see recommendations/DEPLOYMENT.md for verification and operational details.
 
-`analytics/` and `checkout/` are independently runnable **Strapi proxies**, not extracted business services. Each has its own runtime, package.json, .env.example and HTTP entry point. They still forward to `/api/interactions/track` and `/api/orders`. Stripe payment endpoints remain in Strapi.
+`analytics/` owns event validation and DynamoDB persistence, with a private IAM reader for recommendations and a public aggregate summary. It was deployed and verified in AWS eu-north-1 on 2026-09-21; see its README for endpoints and checks. `checkout/` remains a Strapi proxy to `/api/orders`; Stripe payment endpoints remain in Strapi.
 
 ## Independent HTTP processes
 
-From each folder, copy .env.example to .env, set the existing Strapi URL and the frontend origin, and run `npm start`. Recommendations also requires a dedicated Strapi read token. No npm dependencies or frontend checkout are required once a service folder is copied elsewhere.
+From each folder, copy .env.example to .env, set the existing Strapi URL and the frontend origin, and run `npm start`. Recommendations also requires a dedicated Strapi read token. Run npm ci in analytics and recommendations to install their pinned AWS SDK dependencies; the frontend checkout is not needed once the service folder is copied elsewhere.
 
 | Folder | Default port | Endpoint |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ NEXT_PUBLIC_ANALYTICS_URL=http://127.0.0.1:8788/track
 NEXT_PUBLIC_CHECKOUT_URL=http://127.0.0.1:8789/checkout
 ```
 
-Use HTTPS service URLs when deploying the public frontend. Leaving a variable unset retains that feature's original Strapi endpoint. For the Lambda pilot, set only the recommendations URL.
+Use HTTPS service URLs when deploying the public frontend. Leaving a variable unset retains that feature's original Strapi endpoint. Set NEXT_PUBLIC_ANALYTICS_SUMMARY_URL to the analytics /summary endpoint when enabling DynamoDB metrics.
 
 The legacy `npm run serverless:demo` command hosts all three routes on one port (8787 by default). Supply STRAPI_URL and STRAPI_API_TOKEN to that process. It does not automatically load each service's .env.
 

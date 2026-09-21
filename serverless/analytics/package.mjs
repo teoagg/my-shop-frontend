@@ -1,7 +1,7 @@
 import { mkdir, copyFile, readdir, cp } from 'node:fs/promises'
 const output = new URL('./build/function/', import.meta.url)
 await mkdir(output, { recursive: true })
-const files = ["handler.mjs", "engine.mjs", "data.mjs", "analytics.mjs", "runtime.mjs"]
+const files = ["handler.mjs", "validation.mjs", "store.mjs", "runtime.mjs"]
 for (const name of await readdir(output)) {
   if (!files.includes(name) && name !== 'node_modules') throw new Error(`Unexpected deployment file: ${name}. Inspect the build directory before deploying.`)
 }

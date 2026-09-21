@@ -9,9 +9,14 @@ Parameters:
     Type: String
     NoEcho: true
     MinLength: 1
+  AnalyticsReaderArn:
+    Type: String
+    Default: ""
   AllowedOrigin:
     Type: String
     Default: https://shop.tagg.gr
+Conditions:
+  HasAnalyticsReader: !Not [!Equals [!Ref AnalyticsReaderArn, ""]]
 Resources:
   RecommendationsApi:
     Type: AWS::Serverless::HttpApi
@@ -28,8 +33,17 @@ Resources:
       Runtime: nodejs22.x
       Timeout: 30
       MemorySize: 256
+      Policies:
+        - !If
+          - HasAnalyticsReader
+          - Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !Ref AnalyticsReaderArn
+          - !Ref AWS::NoValue
       Environment:
         Variables:
+          ANALYTICS_READER_ARN: !Ref AnalyticsReaderArn
           STRAPI_URL: !Ref StrapiUrl
           STRAPI_API_TOKEN: !Ref StrapiApiToken
           ALLOWED_ORIGIN: !Ref AllowedOrigin

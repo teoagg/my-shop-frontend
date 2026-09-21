@@ -1,3 +1,4 @@
+import { loadAnalytics } from './analytics.mjs'
 import { fetchUpstream, strapiBaseUrl } from './runtime.mjs'
 
 // A bounded, uncached snapshot for the thesis pilot; fail instead of silently truncating.
@@ -24,9 +25,10 @@ export async function loadData() {
   const token = process.env.STRAPI_API_TOKEN
   if (!token) throw Object.assign(new Error('STRAPI_API_TOKEN is not configured.'), { status: 503 })
   const signal = AbortSignal.timeout(20000)
-  const [products, interactions] = await Promise.all([
+  const [products, interactions, analytics] = await Promise.all([
     collection('/api/products', { status: 'published', 'populate[0]': 'categories', 'populate[1]': 'image' }, token, signal),
     collection('/api/interactions', { 'fields[0]': 'eventType', 'fields[1]': 'sessionId', 'populate[product][fields][0]': 'documentId' }, token, signal),
+    loadAnalytics(signal),
   ])
-  return { products, interactions }
+  return { products, interactions: [...interactions, ...analytics] }
 }

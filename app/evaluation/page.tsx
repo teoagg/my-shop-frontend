@@ -92,8 +92,8 @@ const evaluationAreas = [
   {
     title: 'Composable / MACH',
     description:
-      'Serverless-style microservices για recommendation, analytics και checkout με fallback στο Strapi.',
-    items: ['Microservices', 'API-first JSON contracts', 'Cloud function ready', 'Headless CMS core'],
+      'Μερική μετάβαση: ανεξάρτητες υπηρεσίες προτάσεων και analytics σε AWS Lambda. Ο κατάλογος και το checkout παραμένουν στο Strapi.',
+    items: ['AWS Lambda', 'DynamoDB analytics', 'API-first JSON contracts', 'Headless CMS core'],
   },
 ]
 

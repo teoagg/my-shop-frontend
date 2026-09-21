@@ -17,6 +17,10 @@
     "data.mjs",
     "runtime.mjs",
     "server.mjs",
-    "app.cjs"
-  ]
+    "app.cjs",
+    "analytics.mjs"
+  ],
+  "dependencies": {
+    "@aws-sdk/client-lambda": "3.1137.0"
+  }
 }

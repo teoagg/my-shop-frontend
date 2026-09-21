@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { getAnalyticsSummaryUrl } from '@/lib/service-endpoints'
 
 type VariantSummary = {
   variant: 'A' | 'B'
@@ -23,7 +24,7 @@ export default function ABMetricsPanel() {
   const [rows, setRows] = useState<VariantSummary[]>([])
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/interactions/summary`)
+    fetch(getAnalyticsSummaryUrl())
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => setRows(data.data || []))
       .catch(() => setRows([]))
@@ -41,7 +42,9 @@ export default function ABMetricsPanel() {
           <h2 className="mt-1 text-2xl font-black">Μετρικές recommender UX</h2>
         </div>
         <p className="max-w-xl text-sm text-[var(--muted)]">
-          Τα δεδομένα προέρχονται από interactions που γράφονται στο Strapi.
+          {process.env.NEXT_PUBLIC_ANALYTICS_SUMMARY_URL
+            ? 'Συμβάντα που καταγράφηκαν στο AWS analytics μετά τη μετάβαση. Οι αγορές είναι συμβάντα του browser, όχι επιβεβαιωμένες πληρωμές.'
+            : 'Τα δεδομένα προέρχονται από interactions που γράφονται στο Strapi.'}
         </p>
       </div>
 

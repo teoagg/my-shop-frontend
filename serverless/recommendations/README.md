@@ -2,7 +2,7 @@
 
 Status: deployed to AWS Lambda and verified against live Strapi on 2026-09-20. See DEPLOYMENT.md.
 
-This folder runs without Next.js, npm dependencies, or sibling folders. It computes recommendations itself; it never calls `/api/recommendations`. Strapi supplies published products and private interaction data. Node.js 20.12+ is required locally; the deployment template selects Node.js 22.
+This folder runs without Next.js or sibling folders. Run npm ci for its pinned AWS Lambda SDK dependency. It computes recommendations itself; it never calls `/api/recommendations`. Strapi supplies published products and private interaction data. Node.js 20.12+ is required locally; the deployment template selects Node.js 22.
 
 ## Algorithm and compatibility
 
@@ -26,7 +26,7 @@ Copy `.env.example` to `.env`, configure `STRAPI_URL`, `STRAPI_API_TOKEN`, and `
 npm start
 ```
 
-No install/build step is needed. Environment variables provided by the host override `.env`. The token stays on the service, never in frontend variables. HTTP startup loads the service's own `.env`; direct Lambda invocation uses configured environment variables. Plesk can start `app.cjs`, but this is ordinary Node hosting, not a Lambda deployment.
+Run npm ci before starting the service. Environment variables provided by the host override `.env`. The token stays on the service, never in frontend variables. HTTP startup loads the service's own `.env`; direct Lambda invocation uses configured environment variables. Plesk can start `app.cjs`, but this is ordinary Node hosting, not a Lambda deployment.
 
 ```sh
 npm test
@@ -45,12 +45,18 @@ sam validate --lint --template-file template.yaml
 sam deploy --guided --template-file template.yaml --resolve-s3
 ```
 
-Supply StrapiUrl, StrapiApiToken and AllowedOrigin when prompted. Do not save the token to source control or a shared SAM configuration. The token parameter is NoEcho; it becomes a Lambda environment variable accessible to authorized AWS operators. The generated package contains only four runtime modules. The template creates a Lambda function, its execution role and an HTTP API with GET/OPTIONS routes and rate limits. Lambda has a 30-second timeout; data loading has a 20-second deadline and 5-second per-fetch timeout in AWS. Do not claim successful AWS deployment until the stack and endpoint are tested. SAM validation with --lint passed in AWS CloudShell on 2026-09-20.
+Supply StrapiUrl, StrapiApiToken and AllowedOrigin when prompted. Do not save the token to source control or a shared SAM configuration. The token parameter is NoEcho; it becomes a Lambda environment variable accessible to authorized AWS operators. The generated package includes five runtime modules and pinned SDK dependencies, with no environment files. The template creates a Lambda function, its execution role and an HTTP API with GET/OPTIONS routes and rate limits. Lambda has a 30-second timeout; data loading has a 20-second deadline and 5-second per-fetch timeout in AWS. Do not claim successful AWS deployment until the stack and endpoint are tested. SAM validation with --lint passed in AWS CloudShell on 2026-09-20.
 
-Use the stack's RecommendationsUrl output as `NEXT_PUBLIC_RECOMMENDATIONS_URL` in the frontend **before rebuilding**. Leave analytics/checkout settings unchanged. To roll back, remove this variable and rebuild: the original Strapi recommendation controller remains available.
+Use the stack's RecommendationsUrl output as `NEXT_PUBLIC_RECOMMENDATIONS_URL` in the frontend **before rebuilding**. Configure analytics separately using its README; checkout remains in Strapi. To roll back recommendations, remove this variable and rebuild: the original Strapi recommendation controller remains available.
 
 ## Evaluation
 
 Run `node compare.mjs <old-Strapi-recommendations-URL> <new-Lambda-URL> <documentId> [iterations]` against a fixed dataset. It reports sequential request latencies, errors and ordered-result agreement; different results can follow from the intentional corrections above. It does not claim statistical significance or label first-request latency as a cold start. Confirm cold starts using Lambda logs/REPORT initialization data. Separately measure whole-page TTFB and Lighthouse, and record region, dataset size, concurrency and cache conditions. An initial five-pair live smoke comparison is recorded in DEPLOYMENT.md; a controlled performance study remains outstanding.
 
 References: [AWS SAM Function](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html), [Strapi REST population](https://docs.strapi.io/cms/api/rest/populate-select).
+
+## Analytics migration
+
+When ANALYTICS_READER_ARN is configured, loadData invokes that private Lambda through IAM and combines its paginated DynamoDB events with historical Strapi interactions. Raw events are not returned by the public recommendation endpoint. Failure to read the configured analytics service fails the request rather than silently ignoring new events. The frontend handles recommendation failures by omitting the panel. The pilot remains capped at 100 pages per data source.
+
+The live stack was updated on 2026-09-21 to use the private reader from `shop-analytics-pilot`. Its public URL is unchanged. Fixture tests verify pagination, new-event influence on ranking, and reader failures; the live endpoint returned 200 with the reader configured.

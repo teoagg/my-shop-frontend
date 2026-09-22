@@ -1,5 +1,19 @@
 # Evaluation Toolkit
 
+## Public WooCommerce comparison
+
+Run `python evaluation/compare-stores.py` from the repository root (Python 3,
+standard library only). This reads the public Next.js and test WooCommerce
+home, catalog, product and empty-cart pages without credentials or purchases.
+It sends 8 warm-ups and 80 measured requests sequentially, alternating platform
+order, with a one-second pause between requests. Timestamped raw JSON, CSV and
+a Greek Markdown report are saved in `evaluation/reports/comparison-*/`.
+The raw file is updated after each request so interrupted runs remain auditable.
+Timing uses Python urllib, includes redirects and requests identity encoding;
+do not merge these numbers with earlier Node.js runs as if the clients matched.
+Different products, templates, draft records and hosting allocations remain
+confounders. No load-test, cost advantage, or architecture-level causality is claimed.
+
 This folder contains repeatable measurement tooling for the thesis evaluation.
 
 Run both local services first:

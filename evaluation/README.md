@@ -14,6 +14,23 @@ do not merge these numbers with earlier Node.js runs as if the clients matched.
 Different products, templates, draft records and hosting allocations remain
 confounders. No load-test, cost advantage, or architecture-level causality is claimed.
 
+## Website integration
+
+After checking a completed run, publish it from the administrator shell:
+
+```bash
+python evaluation/publish-comparison.py evaluation/reports/comparison-YYYYMMDDTHHMMSSZ
+```
+
+This validates completion and sample counts, strips non-public fields, and atomically
+replaces `evaluation/published/comparison-latest.json`. The `/evaluation` page reads
+that snapshot without running measurements. CSV and JSON downloads are served by
+`GET /api/evaluation/comparison?format=csv` (or `json`). There is no public run endpoint;
+execution and publication require administrator shell/Plesk access. Customer login
+does not authorize running benchmarks. Preserve `evaluation/published` on deployments.
+Published reports are intentionally versioned as thesis evidence and contain only
+public endpoint observations. A new snapshot needs no frontend rebuild.
+
 This folder contains repeatable measurement tooling for the thesis evaluation.
 
 Run both local services first:

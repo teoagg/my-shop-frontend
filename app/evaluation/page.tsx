@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import ABMetricsPanel from '@/components/ABMetricsPanel'
+import StoreComparison from '@/components/StoreComparison'
 
 export const dynamic = 'force-dynamic'
 
@@ -121,7 +122,9 @@ export default async function EvaluationPage() {
         </p>
       </div>
 
-      <section className="grid gap-5 lg:grid-cols-3">
+      <StoreComparison />
+
+      <section className="mt-8 grid gap-5 lg:grid-cols-3">
         {evaluationAreas.map((area) => (
           <article
             key={area.title}

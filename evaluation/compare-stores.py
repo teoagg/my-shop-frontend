@@ -2,6 +2,7 @@
 import csv
 import json
 import math
+import os
 import platform
 import re
 import statistics
@@ -58,13 +59,13 @@ def summarize(rows):
 
 def main():
     timestamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-    folder = Path('evaluation/reports') / ('comparison-' + timestamp)
+    folder = Path(os.environ.get('COMPARISON_RUN_DIR', 'evaluation/reports/comparison-' + timestamp))
     folder.mkdir(parents=True, exist_ok=False)
-    report = dict(started_at=timestamp, execution_host=platform.system(), python=platform.python_version(),
+    report = dict(started_at=timestamp, execution_host=os.environ.get('COMPARISON_EXECUTION_HOST', platform.system()), python=platform.python_version(),
                   method='Anonymous GET; no cookies; TLS verification on; redirects followed; identity encoding; 1 second pause after each request; alternating platform order each round. One warm-up per URL excluded, then 10 samples per URL. No concurrency. No cache flush.',
-                  limitations=['Different products, images, templates and database sizes (WooCommerce retains 181 drafts).',
+                  limitations=['Different products, images, templates and database sizes; catalog and draft counts are not verified by this run.',
                                'HTTP document timing only; no browser rendering, image downloads, JavaScript, checkout transaction or load/scalability test.',
-                               'WP Super Cache admin showed a permalink configuration error before this run; hosting-level cache and resource allocations unverified.',
+                               'Cache configuration and hosting resource allocations are not verified by this run.',
                                'P95 uses nearest rank; with ten samples it equals the largest successful observation.',
                                'No measured traditional CMS cost baseline or matched hosting resource allocation; no causal claim about architecture.'],
                   observations=[])
@@ -89,12 +90,12 @@ def main():
     with (folder/'summary.csv').open('w', newline='', encoding='utf-8-sig') as file:
         writer = csv.DictWriter(file, fieldnames=list(results[0])); writer.writeheader(); writer.writerows(results)
     lines = ['# Σύγκριση δημόσιων εγκαταστάσεων', '', f'Έναρξη UTC: {timestamp}', '',
-             '80 μετρήσεις και 8 προθερμάνσεις. Ίδιος υπολογιστής Windows, χωρίς cookies, διαδοχικές αιτήσεις με εναλλαγή σειράς και παύση 1 δευτερολέπτου. Δεν έγινε εκκαθάριση cache.', '',
+             '80 μετρήσεις και 8 προθερμάνσεις. Ίδιο σημείο εκτέλεσης για τις δύο εγκαταστάσεις, χωρίς cookies, διαδοχικές αιτήσεις με εναλλαγή σειράς και παύση 1 δευτερολέπτου. Δεν έγινε εκκαθάριση cache.', '',
              '| Σελίδα | Εγκατάσταση | Επιτυχίες | Διάμεσος HTTP ms | Μέσος HTTP ms | P95 ms |',
              '|---|---|---:|---:|---:|---:|']
     lines += [f"| {r['page']} | {r['platform']} | {r['ok']}/10 | {r['median_ms']} | {r['mean_ms']} | {r['p95_ms']} |" for r in results]
     lines += ['', '## Περιορισμοί', '', 'Μετράται το HTML μέσω HTTP, όχι η πλήρης οπτική φόρτωση. Δεν μετρώνται Lighthouse/Core Web Vitals. Το P95 σε 10 δείγματα είναι το μέγιστο. Αποτυχίες καταγράφονται και εξαιρούνται από τους χρόνους επιτυχών αιτήσεων.', '',
-              'Τα καταστήματα έχουν από 10 δημοσιευμένα προϊόντα, αλλά διαφορετικό περιεχόμενο, εικόνες, θέμα και λειτουργίες. Το WooCommerce διατηρεί 181 drafts και έχει προϊόντα με παραλλαγές. Το WP Super Cache εμφάνιζε σφάλμα permalinks. Οι πόροι φιλοξενίας και τυχόν server cache δεν έχουν επαληθευτεί. Πρόκειται για σύγκριση εγκαταστάσεων, όχι απομόνωση της επίδρασης της πλατφόρμας.', '',
+              'Τα καταστήματα έχουν διαφορετικό περιεχόμενο, εικόνες, θέμα και λειτουργίες. Το πλήθος προϊόντων και η ρύθμιση cache δεν επαληθεύονται αυτόματα. Οι πόροι φιλοξενίας και τυχόν server cache δεν έχουν επαληθευτεί. Πρόκειται για σύγκριση εγκαταστάσεων, όχι απομόνωση της επίδρασης της πλατφόρμας.', '',
               '## Παρουσία HTTP security headers', '', '| Εγκατάσταση | Header | Παρόν στην τελευταία επιτυχημένη αίτηση αρχικής |', '|---|---|---|']
     for name in PLATFORMS:
         rows=[r for r in report['observations'] if r['platform']==name and r['page']=='Home' and r['ok']]

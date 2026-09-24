@@ -25,9 +25,8 @@ python evaluation/publish-comparison.py evaluation/reports/comparison-YYYYMMDDTH
 This validates completion and sample counts, strips non-public fields, and atomically
 replaces `evaluation/published/comparison-latest.json`. The `/evaluation` page reads
 that snapshot without running measurements. CSV and JSON downloads are served by
-`GET /api/evaluation/comparison?format=csv` (or `json`). There is no public run endpoint;
-execution and publication require administrator shell/Plesk access. Customer login
-does not authorize running benchmarks. Preserve `evaluation/published` on deployments.
+`GET /api/evaluation/comparison?format=csv` (or `json`). The run endpoint requires an explicitly authorized shop user; ordinary customer
+login does not authorize benchmarks. Administrator shell/Plesk publication is also supported. Preserve `evaluation/published` on deployments.
 Published reports are intentionally versioned as thesis evidence and contain only
 public endpoint observations. A new snapshot needs no frontend rebuild.
 
@@ -72,3 +71,26 @@ Measured areas:
 - Comparative study rows against a traditional monolithic CMS baseline
 
 Lighthouse is intentionally optional because it is not installed in this project by default. For formal Lighthouse evidence, run Lighthouse separately and place the exported HTML/JSON files in `evaluation/reports/`.
+
+## Administrator web runner
+
+The evaluation page shows “Νέα μέτρηση” only after the server verifies the shop
+Bearer token against Strapi `/api/users/me` and matches the returned numeric user
+ID against the server-only `EVALUATION_ADMIN_USER_IDS` comma-separated allowlist.
+Never grant access based on browser localStorage user details or an unverified JWT.
+Set `EVALUATION_PYTHON` if Python 3 is not available as `python3`.
+
+The POST `/api/evaluation/run` checks the Origin and uses an atomic filesystem
+lock in `evaluation/reports/web-run.lock`. It starts a detached Python process,
+with a 10-minute comparison timeout and five-minute interval between starts.
+Only fixed public targets from compare-stores.py can be measured. GET on the same
+endpoint is administrator-only and returns progress. API responses bypass the
+service worker. Failed/incomplete runs retain the last published snapshot.
+Reports and logs are kept under evaluation/reports, outside public/.
+
+A server/worker crash may leave a lock. This fails closed: inspect web-run.json
+and the corresponding log and verify there is no surviving worker or comparison
+process before removing the lock directory. Do not auto-expire a lock while a
+measurement could still run. Preserve reports and published/ across deployments.
+Server measurements are labelled Plesk server and form a separate baseline from
+Windows measurements. New runs do not verify product counts or cache settings.

@@ -93,9 +93,12 @@ flowchart LR
     Next --> Strapi[Strapi 5 Headless CMS]
     Strapi --> DB[(SQLite / Production DB)]
     Strapi --> Stripe[Stripe PaymentIntents]
-    Next --> Rec[Recommendation Function]
-    Next --> Analytics[Analytics Function]
-    Analytics --> Events[(Interaction Events)]
+    Next --> ApiGw[AWS API Gateway]
+    ApiGw --> Rec[AWS Lambda: Recommendations]
+    ApiGw --> Analytics[AWS Lambda: Analytics]
+    ApiGw --> Checkout[AWS Lambda: Checkout Adapter]
+    Analytics --> Events[(Amazon DynamoDB Events)]
+    Checkout --> Strapi
     Next --> Eval[Evaluation Dashboard]
     Eval --> Woo[WooCommerce Baseline]
 ```
@@ -128,7 +131,7 @@ Production deployment notes for Plesk, public URLs, runtime configuration, and b
 
 ## Serverless / MACH Pilot
 
-The project includes a partial composable architecture pilot under [serverless/](serverless/). It demonstrates how recommendations, analytics, and checkout can be separated into function-style services while the current production system remains compatible with the Strapi backend.
+The project includes a partial composable architecture pilot under [serverless/](serverless/). It demonstrates how recommendations, analytics, and checkout can be separated into AWS-style function services while the current production system remains compatible with the Strapi backend. The intended cloud mapping is API Gateway for HTTP routing, AWS Lambda for independent service execution, and DynamoDB for interaction-event storage.
 
 Run the local adapter:
 
@@ -141,4 +144,3 @@ Then set the optional endpoint variables shown above.
 ## Stripe Test Payments
 
 The checkout uses Stripe test mode. For interactive testing use card `4242 4242 4242 4242`, any future expiry date, any CVC, and any postal code. The browser confirms the card with Stripe.js, while Strapi verifies the PaymentIntent and stores the paid order.
-

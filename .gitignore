@@ -35,6 +35,9 @@ yarn-error.log*
 .env*
 !.env.example
 /.agents/
+/AGENTS.md
+/CLAUDE.md
+/GEMINI.md
 /evaluation/reports/
 __pycache__/
 

@@ -38,6 +38,16 @@ yarn-error.log*
 /evaluation/reports/
 __pycache__/
 
+# thesis working artifacts
+/render_*/
+/thesis_style_report.json
+/logfile_*.txt
+/*.docx
+/scripts/audit_thesis_bibliography.py
+/scripts/update_thesis_points_3_4.py
+/scripts/add_woocommerce_comparison_to_thesis*.py
+/scripts/add_requirements_traceability_to_thesis.py
+
 # vercel
 .vercel
 

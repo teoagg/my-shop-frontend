@@ -18,6 +18,7 @@ type Order = {
   total: number | string
   createdAt?: string
   status?: 'pending' | 'paid' | 'cancelled'
+  paymentIntentId?: string
 }
 
 type OrdersResponse = {
@@ -144,6 +145,11 @@ export default function OrdersPage() {
                   {order.createdAt && (
                     <p className="mt-1 text-sm text-[var(--muted)]">
                       {formatDate(order.createdAt)}
+                    </p>
+                  )}
+                  {order.paymentIntentId && (
+                    <p className="mt-1 text-xs font-bold text-[var(--muted)]">
+                      Stripe reference: {order.paymentIntentId}
                     </p>
                   )}
                 </div>

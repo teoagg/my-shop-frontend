@@ -1,6 +1,6 @@
-const STATIC_CACHE = 'shop-static-v4'
-const RUNTIME_CACHE = 'shop-runtime-v4'
-const STATIC_ASSETS = ['/', '/offline', '/products', '/cart', '/manifest.webmanifest', '/icon.svg']
+const STATIC_CACHE = 'shop-static-v5'
+const RUNTIME_CACHE = 'shop-runtime-v5'
+const STATIC_ASSETS = ['/', '/offline', '/products', '/cart', '/icon.svg']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
 
   // Keep payment scripts and changing Next.js development bundles on the network.
-  if (url.origin !== self.location.origin || url.pathname.startsWith('/_next/') || url.pathname.startsWith('/api/evaluation/')) return
+  if (url.origin !== self.location.origin || url.pathname === '/manifest.webmanifest' || url.pathname.startsWith('/_next/') || url.pathname.startsWith('/api/evaluation/')) return
 
   if (request.mode === 'navigate') {
     event.respondWith(
